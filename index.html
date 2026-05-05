@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Granja Santa Marianita</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 16px; }
+    h1 { font-size: 18px; font-weight: 500; margin-bottom: 16px; color: #3C3489; }
+    .dash { display: grid; grid-template-columns: 280px 1fr; gap: 14px; }
+    .card { background: #ffffff; border: 1px solid #e0e0d8; border-radius: 12px; padding: 14px 16px; }
+    .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .val { font-size: 22px; font-weight: 500; }
+    .val-sm { font-size: 15px; font-weight: 500; }
+    .unit { font-size: 12px; color: #888; margin-left: 3px; }
+    .sec-title { font-size: 12px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+    .pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; cursor: pointer; }
+    .pill.active { background: #993C1D; color: #F5C4B3; }
+    .pill.inactive { background: #f0f0eb; color: #888; border: 1px solid #ddd; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .metric-card { background: #f5f5f0; border-radius: 8px; padding: 10px 12px; }
+    .right-col { display: flex; flex-direction: column; gap: 14px; }
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .status-item { background: #f5f5f0; border-radius: 8px; padding: 10px 12px; }
+    .ok { color: #0F6E56; font-size: 13px; font-weight: 500; }
+    .warn { color: #A32D2D; font-size: 13px; font-weight: 500; }
+    .row-data { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+    .row-data:last-child { border-bottom: none; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    input[type=range] { width: 100%; margin-top: 6px; accent-color: #7F77DD; }
+    .left-col { display: flex; flex-direction: column; gap: 14px; }
+  </style>
+</head>
+<body>
+
+<h1>Dashboard — Granja Santa Marianita</h1>
+
+<div class="dash">
+  <div class="left-col">
+    <div class="card">
+      <div class="sec-title">Tu granja</div>
+      <div class="label" style="margin-bottom:6px">Etapa productiva</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="etapas">
+        <span class="pill active" onclick="setEtapa(this,2.0)">Lechon</span>
+        <span class="pill inactive" onclick="setEtapa(this,1.5)">Destete</span>
+        <span class="pill inactive" onclick="setEtapa(this,2.8)">Engorda</span>
+        <span class="pill inactive" onclick="setEtapa(this,3.2)">Reproductor</span>
+      </div>
+      <div class="label">Numero de cerdos</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <input type="range" min="50" max="2000" step="10" value="500" id="sl-cerdos" oninput="recalc()" style="flex:1;margin-right:10px">
+        <span class="val-sm" id="lbl-cerdos" style="color:#D85A30;min-width:70px;text-align:right">500 cerdos</span>
+      </div>
+      <div class="label" style="margin-top:10px">Alimento/cerdo/dia (kg)</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <input type="range" min="0.5" max="5" step="0.1" value="2.4" id="sl-alimento" oninput="recalc()" style="flex:1;margin-right:10px">
+        <span class="val-sm" id="lbl-alimento" style="color:#BA7517;min-width:50px;text-align:right">2.4 kg</span>
+      </div>
+      <div class="label" style="margin-top:10px">Temperatura promedio (°C)</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <input type="range" min="15" max="45" step="1" value="28" id="sl-temp" oninput="recalc()" style="flex:1;margin-right:10px">
+        <span class="val-sm" id="lbl-temp" style="color:#1D9E75;min-width:50px;text-align:right">28°C</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Biodigestor</div>
+      <div class="label">Tiempo de retencion HRT</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <input type="range" min="10" max="60" step="1" value="25" id="sl-hrt" oninput="recalc()" style="flex:1;margin-right:10px">
+        <span class="val-sm" id="lbl-hrt" style="color:#185FA5;min-width:60px;text-align:right">25 dias</span>
+      </div>
+      <div class="label" style="margin-top:10px">Inversion inicial (MXN)</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <input type="range" min="50000" max="500000" step="10000" value="85000" id="sl-inv" oninput="recalc()" style="flex:1;margin-right:10px">
+        <span class="val-sm" id="lbl-inv" style="color:#534AB7;min-width:80px;text-align:right">$85,000</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-col">
+    <div class="card">
+      <div class="sec-title">Flujo de masa — hoy</div>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="label">Alimento total</div><div class="val" id="m-alimento" style="color:#D85A30">1200</div><div class="unit">kg/dia</div></div>
+        <div class="metric-card"><div class="label">Solidos totales</div><div class="val" id="m-st" style="color:#BA7517">49.0</div><div class="unit">kg ST/dia</div></div>
+        <div class="metric-card"><div class="label">Solidos volatiles</div><div class="val" id="m-sv" style="color:#854F0B">36.7</div><div class="unit">kg VS/dia</div></div>
+        <div class="metric-card"><div class="label">DQO</div><div class="val" id="m-dqo" style="color:#534AB7">69.6</div><div class="unit">kg/dia</div></div>
+        <div class="metric-card"><div class="label">Biogas</div><div class="val" id="m-biogas" style="color:#1D9E75">10.9</div><div class="unit">m³/dia</div></div>
+        <div class="metric-card"><div class="label">Metano CH4</div><div class="val" id="m-metano" style="color:#0F6E56">7.1</div><div class="unit">m³/dia</div></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="sec-title">Energia generada</div>
+        <div class="row-data"><span style="color:#888">Electricidad/dia</span><span class="val-sm" id="e-dia">20 kWh</span></div>
+        <div class="row-data"><span style="color:#888">Electricidad/mes</span><span class="val-sm" id="e-mes">592 kWh</span></div>
+        <div class="row-data"><span style="color:#888">Electricidad/año</span><span class="val-sm" id="e-anio">7,205 kWh</span></div>
+        <div class="row-data"><span style="color:#888">CO₂ evitado/año</span><span class="val-sm" id="e-co2" style="color:#1D9E75">7.1 ton</span></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">Ingresos estimados</div>
+        <div class="row-data"><span style="color:#888">Ingreso/dia</span><span class="val-sm" id="i-dia" style="color:#1D9E75">$37 MXN</span></div>
+        <div class="row-data"><span style="color:#888">Ingreso/mes</span><span class="val-sm" id="i-mes">$1,096 MXN</span></div>
+        <div class="row-data"><span style="color:#888">Ingreso/año</span><span class="val-sm" id="i-anio">$13,330 MXN</span></div>
+        <div class="row-data"><span style="color:#888">Payback simple</span><span class="val-sm" id="i-payback" style="color:#D85A30">6.4 años</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">Estado del sistema</div>
+      <div class="status-grid">
+        <div class="status-item"><div class="label">Temperatura digestor</div><div id="st-temp" class="ok">✓ Rango mesofilo</div></div>
+        <div class="status-item"><div class="label">HRT suficiente</div><div id="st-hrt" class="ok">✓ Retencion adecuada</div></div>
+        <div class="status-item"><div class="label">Carga organica</div><div id="st-carga" class="ok">✓ Dentro de rango</div></div>
+        <div class="status-item"><div class="label">Rentabilidad VPN</div><div id="st-vpn" class="warn">↓ Proyecto en riesgo</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setEtapa(el, alim) {
+    document.querySelectorAll('#etapas .pill').forEach(p => p.className = 'pill inactive');
+    el.className = 'pill active';
+    document.getElementById('sl-alimento').value = alim;
+    recalc();
+  }
+
+  function fmt(n, dec=1) { return Number(n).toFixed(dec); }
+
+  function recalc() {
+    const cerdos = +document.getElementById('sl-cerdos').value;
+    const alim   = +document.getElementById('sl-alimento').value;
+    const temp   = +document.getElementById('sl-temp').value;
+    const hrt    = +document.getElementById('sl-hrt').value;
+    const inv    = +document.getElementById('sl-inv').value;
+
+    document.getElementById('lbl-cerdos').textContent   = cerdos + ' cerdos';
+    document.getElementById('lbl-alimento').textContent = fmt(alim,1) + ' kg';
+    document.getElementById('lbl-temp').textContent     = temp + '°C';
+    document.getElementById('lbl-hrt').textContent      = hrt + ' dias';
+    document.getElementById('lbl-inv').textContent      = '$' + Math.round(inv).toLocaleString();
+
+    const alimTotal = cerdos * alim;
+    const st     = alimTotal * 0.0408;
+    const sv     = st * 0.749;
+    const dqo    = sv * 1.895;
+    const biogas = sv * 0.297;
+    const metano = biogas * 0.65;
+    const kwh    = metano * 2.78;
+    const co2    = metano * 365 * 1.95 / 1000;
+
+    const biol_dia    = alimTotal * 0.0025;
+    const ingreso_dia = biogas * 13.0 + biol_dia * 420.0;
+    const ingreso_anio = ingreso_dia * 365;
+    const flujo_neto  = ingreso_anio - 12000;
+    const anualidad   = Array.from({length:10},(_,i)=>1/Math.pow(1.10,i+1)).reduce((a,b)=>a+b,0);
+    const vpn         = flujo_neto * anualidad - inv;
+    const payback     = inv / Math.max(flujo_neto, 1);
+
+    document.getElementById('m-alimento').textContent = Math.round(alimTotal);
+    document.getElementById('m-st').textContent       = fmt(st);
+    document.getElementById('m-sv').textContent       = fmt(sv);
+    document.getElementById('m-dqo').textContent      = fmt(dqo);
+    document.getElementById('m-biogas').textContent   = fmt(biogas);
+    document.getElementById('m-metano').textContent   = fmt(metano);
+
+    document.getElementById('e-dia').textContent  = fmt(kwh,0) + ' kWh';
+    document.getElementById('e-mes').textContent  = fmt(kwh*30,0) + ' kWh';
+    document.getElementById('e-anio').textContent = Math.round(kwh*365).toLocaleString() + ' kWh';
+    document.getElementById('e-co2').textContent  = fmt(co2,1) + ' ton';
+
+    document.getElementById('i-dia').textContent    = '$' + Math.round(ingreso_dia).toLocaleString() + ' MXN';
+    document.getElementById('i-mes').textContent    = '$' + Math.round(ingreso_dia*30).toLocaleString() + ' MXN';
+    document.getElementById('i-anio').textContent   = '$' + Math.round(ingreso_anio).toLocaleString() + ' MXN';
+    document.getElementById('i-payback').textContent = fmt(payback,1) + ' años';
+    document.getElementById('i-payback').style.color = payback <= 10 ? '#1D9E75' : '#D85A30';
+
+    const stTemp = document.getElementById('st-temp');
+    if (temp >= 30 && temp <= 42)      { stTemp.className='ok';   stTemp.textContent='✓ Rango mesofilo'; }
+    else if (temp > 42 && temp <= 55)  { stTemp.className='ok';   stTemp.textContent='✓ Rango termofilo'; }
+    else                               { stTemp.className='warn'; stTemp.textContent='↓ Temperatura suboptima'; }
+
+    const stHrt = document.getElementById('st-hrt');
+    if (hrt >= 20) { stHrt.className='ok'; stHrt.textContent='✓ Retencion adecuada'; }
+    else           { stHrt.className='warn'; stHrt.textContent='↓ HRT insuficiente'; }
+
+    const stCarga = document.getElementById('st-carga');
+    if (sv/1000 < 3.0) { stCarga.className='ok'; stCarga.textContent='✓ Dentro de rango'; }
+    else               { stCarga.className='warn'; stCarga.textContent='↓ Sobrecarga organica'; }
+
+    const stVpn = document.getElementById('st-vpn');
+    if (vpn > 0) { stVpn.className='ok'; stVpn.textContent='✓ Rentable VPN $'+Math.round(vpn/1000)+'K'; }
+    else         { stVpn.className='warn'; stVpn.textContent='↓ VPN negativo $'+Math.round(vpn/1000)+'K'; }
+  }
+
+  recalc();
+</script>
+</body>
+</html>
